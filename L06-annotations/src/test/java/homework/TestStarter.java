@@ -27,20 +27,29 @@ public class TestStarter {
             List<Method> testMethods = new ArrayList<>();
 
             for (Method method : testClass.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Before.class)) beforeMethods.add(method);
-                if (method.isAnnotationPresent(After.class)) afterMethods.add(method);
-                if (method.isAnnotationPresent(Test.class)) testMethods.add(method);
+                if (method.isAnnotationPresent(Before.class)) {
+                    beforeMethods.add(method);
+                }
+                if (method.isAnnotationPresent(After.class)) {
+                    afterMethods.add(method);
+                }
+                if (method.isAnnotationPresent(Test.class)) {
+                    testMethods.add(method);
+                }
             }
 
             int total = testMethods.size();
             int passed = 0;
-            int failed = 0;
 
             for (Method test : testMethods) {
                 Object instance = testClass.getDeclaredConstructor().newInstance();
 
                 try {
-                    invokeAll(instance, beforeMethods);
+                    var methodsPassed = invokeAll(instance, beforeMethods);
+                    if (!methodsPassed) {
+                        log.error("Error in before methods");
+                        continue;
+                    }
                     test.invoke(instance);
                     log.info("✅ {} passed", test.getName());
                     passed++;
@@ -49,10 +58,8 @@ public class TestStarter {
                             "❌ {} failed: {}",
                             test.getName(),
                             e.getTargetException().getMessage());
-                    failed++;
                 } catch (Exception e) {
                     log.info("⚠️ Unexpected error in {}: {}", test.getName(), e.getMessage());
-                    failed++;
                 } finally {
                     invokeAll(instance, afterMethods);
                     log.info("--------");
@@ -69,20 +76,22 @@ public class TestStarter {
                             """,
                     total,
                     passed,
-                    failed);
+                    total - passed);
 
         } catch (Exception e) {
             log.error("Error running tests: {}", e.getMessage());
         }
     }
 
-    private static void invokeAll(Object instance, List<Method> methods) {
+    private static boolean invokeAll(Object instance, List<Method> methods) {
         for (Method method : methods) {
             try {
                 method.invoke(instance);
             } catch (Exception e) {
                 log.info("⚠️ Error in {}: {}", method.getName(), e.getMessage());
+                return false;
             }
         }
+        return true;
     }
 }
