@@ -3,8 +3,9 @@ package ru.aoplogging;
 class Demo {
 
     public static void main(String[] args) {
-        TestLoggingInterface myClass = Ioc.createMyClass();
-        myClass.calculation(2);
-        myClass.calculation(2, 10);
+        TestLoggingInterface testLogging = Ioc.createClass(TestLogging.class);
+        testLogging.calculation(2);
+        testLogging.calculation(2, 10);
+        testLogging.calculation(5);
     }
 }
