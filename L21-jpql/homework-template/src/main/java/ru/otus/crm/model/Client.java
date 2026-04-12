@@ -11,9 +11,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -80,7 +82,11 @@ public class Client implements Cloneable {
         if (phones == null) {
             return;
         }
-        phones.forEach(this::addPhone);
+        phones.forEach(
+                phone -> {
+                    addPhone(phone);
+                    phone.setClient(this);
+                });
     }
 
     public List<Phone> getPhones() {
