@@ -21,7 +21,7 @@ public class ClientController {
         this.dbServiceClient = dbServiceClient;
     }
 
-    @GetMapping({"/", "/clients"})
+    @GetMapping("/clients")
     public String clientsPage(Model model, @ModelAttribute("form") ClientForm form) {
         if (!model.containsAttribute("form")) {
             model.addAttribute("form", new ClientForm());
