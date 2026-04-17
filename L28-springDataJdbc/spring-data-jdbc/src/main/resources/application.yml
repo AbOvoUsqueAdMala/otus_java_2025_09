@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${APP_DATASOURCE_URL:jdbc:postgresql://localhost:5430/demoDB}
+    username: ${APP_DATASOURCE_USERNAME:usr}
+    password: ${APP_DATASOURCE_PASSWORD:pwd}
+  thymeleaf:
+    cache: false
+
+server:
+  port: ${APP_PORT:8080}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -161,20 +161,20 @@
         <h1>Create Client</h1>
         <p>Each client must contain a name, one address and at least one phone number.</p>
 
-        <form action="/clients" method="post">
+        <form method="post" th:action="@{/clients}" th:object="${form}">
             <label>
                 Name
-                <input type="text" name="name" placeholder="Ivan Ivanov" required>
+                <input type="text" th:field="*{name}" placeholder="Ivan Ivanov" required>
             </label>
 
             <label>
                 Address
-                <input type="text" name="street" placeholder="Lenina 10" required>
+                <input type="text" th:field="*{street}" placeholder="Lenina 10" required>
             </label>
 
             <label>
                 Phones
-                <textarea name="phones" placeholder="13-555-22, 14-666-333" required></textarea>
+                <textarea th:field="*{phones}" placeholder="13-555-22, 14-666-333" required></textarea>
             </label>
 
             <button type="submit">Save Client</button>
@@ -183,44 +183,39 @@
 
     <section class="panel">
         <h2>Clients List</h2>
-        <p><span class="count">${clients?size} total</span></p>
+        <p><span class="count" th:text="${#lists.size(clients)} + ' total'">0 total</span></p>
 
-        <#if successMessage??>
-            <div class="message success">${successMessage}</div>
-        </#if>
+        <div class="message success" th:if="${successMessage != null}" th:text="${successMessage}">
+            Client has been saved
+        </div>
 
-        <#if errorMessage??>
-            <div class="message error">${errorMessage}</div>
-        </#if>
+        <div class="message error" th:if="${errorMessage != null}" th:text="${errorMessage}">
+            Validation error
+        </div>
 
-        <#if clients?size == 0>
-            <div class="empty">No clients have been created yet.</div>
-        <#else>
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>Phones</th>
-                </tr>
-                </thead>
-                <tbody>
-                <#list clients as client>
-                    <tr>
-                        <td>${client.id}</td>
-                        <td>${client.name}</td>
-                        <td><#if client.address??>${client.address.street}</#if></td>
-                        <td>
-                            <#list client.phones as phone>
-                                ${phone.number}<#if phone_has_next><br></#if>
-                            </#list>
-                        </td>
-                    </tr>
-                </#list>
-                </tbody>
-            </table>
-        </#if>
+        <div class="empty" th:if="${#lists.isEmpty(clients)}">No clients have been created yet.</div>
+        <table th:unless="${#lists.isEmpty(clients)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Phones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="client : ${clients}">
+                <td th:text="${client.id}">1</td>
+                <td th:text="${client.name}">Ivan Ivanov</td>
+                <td th:text="${client.address != null ? client.address.street : ''}">Lenina 10</td>
+                <td>
+                    <span th:each="phone, phoneStat : ${client.phones}">
+                        <span th:text="${phone.number}">13-555-22</span><br th:if="${!phoneStat.last}">
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </section>
 </main>
 </body>
