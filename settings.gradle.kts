@@ -8,6 +8,7 @@ include("L18-jdbc:demo")
 include("L18-jdbc:homework")
 include("L21-jpql:homework-template")
 include("L24-webServer:hibernate-orm")
+include("L31-executors")
 
 pluginManagement {
     val jgitver: String by settings
