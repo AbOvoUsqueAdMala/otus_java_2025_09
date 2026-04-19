@@ -10,6 +10,7 @@ include("L21-jpql:homework-template")
 include("L24-webServer:hibernate-orm")
 include("L31-executors")
 include("L32-concurrentCollections:homework")
+include("L34-multiprocess:homework")
 
 
 pluginManagement {
