@@ -1,38 +1,54 @@
 package ru.otus.services.processors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import ru.otus.api.SensorDataProcessor;
 import ru.otus.api.model.SensorData;
 import ru.otus.lib.SensorDataBufferedWriter;
 
-// Этот класс нужно реализовать
-@SuppressWarnings({"java:S1068", "java:S125"})
+@Slf4j
 public class SensorDataProcessorBuffered implements SensorDataProcessor {
-    private static final Logger log = LoggerFactory.getLogger(SensorDataProcessorBuffered.class);
+
+    private static final Comparator<SensorData> BY_MEASUREMENT_TIME =
+            Comparator.comparing(SensorData::getMeasurementTime);
 
     private final int bufferSize;
     private final SensorDataBufferedWriter writer;
+    private final List<SensorData> dataBuffer = new ArrayList<>();
 
     public SensorDataProcessorBuffered(int bufferSize, SensorDataBufferedWriter writer) {
+        if (bufferSize <= 0) {
+            throw new IllegalArgumentException("bufferSize must be greater than zero");
+        }
         this.bufferSize = bufferSize;
         this.writer = writer;
     }
 
     @Override
-    public void process(SensorData data) {
-        /*
-            if (dataBuffer.size() >= bufferSize) {
-                flush();
-            }
-        */
+    public synchronized void process(SensorData data) {
+        dataBuffer.add(data);
+        if (dataBuffer.size() >= bufferSize) {
+            flush();
+        }
     }
 
-    public void flush() {
+    public synchronized void flush() {
+        if (dataBuffer.isEmpty()) {
+            return;
+        }
+
+        var bufferedData = new ArrayList<>(dataBuffer);
+        bufferedData.sort(BY_MEASUREMENT_TIME);
+        dataBuffer.clear();
+
         try {
-            // writer.writeBufferedData(bufferedData);
+            writer.writeBufferedData(bufferedData);
         } catch (Exception e) {
-            log.error("Ошибка в процессе записи буфера", e);
+            log.error("Error while writing buffered sensor data", e);
+            dataBuffer.addAll(bufferedData);
+            dataBuffer.sort(BY_MEASUREMENT_TIME);
         }
     }
 
