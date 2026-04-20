@@ -11,6 +11,9 @@ include("L24-webServer:hibernate-orm")
 include("L31-executors")
 include("L32-concurrentCollections:homework")
 
+include ("L38-webflux-chat:client-service")
+include ("L38-webflux-chat:datastore-service")
+
 
 pluginManagement {
     val jgitver: String by settings
